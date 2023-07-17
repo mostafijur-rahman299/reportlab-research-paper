@@ -1,82 +1,45 @@
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Image, Spacer, Table
+from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
-doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15, title="Example PDF")
-
-styles = getSampleStyleSheet()
+doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
 
 content = []
 
-# Paragraph with Left Alignment
-para_style = ParagraphStyle(
-            name='para',
-            parent=styles['Normal'], 
-            fontSize=20,
-            textColor=colors.HexColor("#5e5b5b"),
-            alignment=0, # Align Left
-        )
+# simple image tag
+image = Image("images/ex-img.png", width=200, height=200)
+content.append(image)
 
-paragraph = Paragraph("Hello World", para_style)
-content.append(paragraph)
+# giving some left margin
+flowables = []
+image2 = [Image("images/ex-img.png", width=200, height=200)]
+left_margin = [Spacer(6.7*inch, 0)]
+flowables.append(left_margin)
+flowables.append(image2)
+content.append(Table(flowables))
 
-# Paragraph With Center Alignment
-para_style = ParagraphStyle(
-            name='para',
-            parent=styles['title'], 
-            fontSize=20,
-            textColor=colors.HexColor("#5e5b5b"),
-            alignment=1, # Align Center
-        )
+content.append(Spacer(1, 40))
 
-paragraph = Paragraph("Hello World", para_style)
-content.append(paragraph)
+# image with following perfect the original image ratio
+desired_width = 200
+desired_height = 200
 
-# Paragraph With Right Alignment
-para_style = ParagraphStyle(
-            name='para',
-            parent=styles['Heading2'], 
-            fontSize=20,
-            textColor=colors.HexColor("#5e5b5b"),
-            alignment=2, # Align Center
-        )
+img = ImageReader("images/ex-img.png")
 
-paragraph = Paragraph("Hello World", para_style)
-content.append(paragraph)
+width, height = img.getSize()
+aspect_ratio = width / height
 
-# Paragraph With Right Alignment
-para_style = ParagraphStyle(
-            name='para',
-            parent=styles['Heading2'], 
-            fontSize=10,
-            textColor=colors.HexColor("#5e5b5b"),
-            alignment=0, # Align Center
-            leading=8, # spacing between lines
-            leftIndent=30,
-            rightIndent=30,
-            spaceAfter=10,
-        )
+# Adjust width and height to maintain aspect ratio
+if aspect_ratio > 1:
+    width = desired_width
+    height = int(desired_width / aspect_ratio)
+else:
+    width = int(desired_height * aspect_ratio)
+    height = desired_height
 
-paragraph = Paragraph("In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used", para_style)
-content.append(paragraph)
-
-
-# Underline text
-para_style = ParagraphStyle(
-            name='para',
-            parent=styles['Heading2'], 
-            fontSize=20,
-            textColor=colors.HexColor("#5e5b5b"),
-            alignment=0, # Align Center
-        )
-underline_text = Paragraph(f'<u>Hey There</u>', para_style)
-content.append(underline_text)
-
-content.append(Spacer(1, 20)) # Give some space
-
-# Images Inside Paragraph tag
-para_image = Paragraph(f"<img src='images/phone-192.png' width='15' height='15' /> +8894847497  <img src='images/whatsapp-192.png' width='15' height='15' />  +19373973  <img src='images/email-50.png' width='15' height='15' />example@gmail.com")
-content.append(para_image)
+# Create an Image object with adjusted width and height
+image = Image("images/ex-img.png", width=width, height=height)
+content.append(image)
 
 doc.build(content)

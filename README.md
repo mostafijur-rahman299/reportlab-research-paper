@@ -101,29 +101,40 @@ doc.build(content)
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/Screenshot%20from%202023-07-17%2013-55-31.png?raw=true)
 
 ### Image Tag
+
+`Image` class to include images in PDF documents. The `Image` class allows to add various image formats, such as JPEG, PNG, GIF, and more, to PDFs.
+
+Here's a simple example of how to use the `Image` class in ReportLab:
+
 ```python
-from reportlab.platypus import SimpleDocTemplate, Image, Spacer
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Image, Spacer, Table
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
 doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
 
 content = []
 
 # simple image tag
-image = Image(path_of_image, width=450, height=250)
+image = Image("images/ex-img.png", width=200, height=200)
 content.append(image)
 
 # giving some left margin
-image2 = Image(path_of_image, width=450, height=250)
+flowables = []
+image2 = [Image("images/ex-img.png", width=200, height=200)]
 left_margin = [Spacer(6.7*inch, 0)]
-content.append(left_margin)
-content.append(image2)
+flowables.append(left_margin)
+flowables.append(image2)
+content.append(Table(flowables))
+
+content.append(Spacer(1, 40))
 
 # image with following perfect the original image ratio
-desired_width = 280
-desired_height = 250
+desired_width = 200
+desired_height = 200
 
-img = ImageReader(attachment_path)
+img = ImageReader("images/ex-img.png")
 
 width, height = img.getSize()
 aspect_ratio = width / height
@@ -137,11 +148,13 @@ else:
     height = desired_height
 
 # Create an Image object with adjusted width and height
-image = Image(attachment_path, width=width, height=height)
+image = Image("images/ex-img.png", width=width, height=height)
 content.append(image)
 
 doc.build(content)
 ```
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/Screenshot%20from%202023-07-17%2013-55-31.png?raw=true)
+
 ### Draw a Line
 ```python
 from reportlab.platypus import SimpleDocTemplate
