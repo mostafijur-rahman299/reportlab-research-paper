@@ -156,6 +156,9 @@ doc.build(content)
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/ex-image-output.png?raw=true)
 
 ### Draw a Line
+
+Here's an example of how to draw a line in ReportLab using Table:
+
 ```python
 from reportlab.platypus import SimpleDocTemplate, Table
 from reportlab.lib import colors
@@ -192,6 +195,9 @@ doc.build(content)
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/line.png?raw=true)
 
 ### Draw a Dotted line
+
+Here's an example of how to draw a dotted line in ReportLab using Table:
+
 ```python
 from reportlab.platypus import SimpleDocTemplate, Table
 from reportlab.lib import colors
@@ -221,6 +227,11 @@ doc.build(content)
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/dotted-line.png?raw=true)
 
 ### Table
+
+In ReportLab, we can create tables in PDF documents using the Table class. Tables are a powerful way to organize and display tabular data in a structured format. We can customize the appearance of the table, including cell borders, cell colors, text styles, and more.
+
+Here's a basic example of how to create a table in ReportLab using the Table class:
+
 ```python
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.pagesizes import A4
@@ -289,25 +300,33 @@ doc.build(content)
 
 ### Adding Current Page Number in footer or header
 ```python
-from reportlab.platypus import SimpleDocTemplate
+from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
 
 doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
 
 content = []
 
-paragraph = Paragraph("Page Number In Footer")
+paragraph = Paragraph(" ")
 content.append(paragraph)
+
+content.append(PageBreak()) # Blank page for test purposes
+content.append(PageBreak()) # Blank page for test purposes
+
 
 def add_page_numbers(canvas, doc):
     page_num = canvas.getPageNumber()
     text = "Page %s" % page_num
     canvas.setFont("Helvetica", 9)
-    canvas.drawRightString(200, 20, text)
+    x_position = 500
+    y_position = 800
+    canvas.drawRightString(x_position, y_position, text)
 
-doc.build(content, onFirstPage=page_number_update, onLaterPages=page_number_update)
+doc.build(content, onFirstPage=add_page_numbers, onLaterPages=add_page_numbers)
 ```
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/footer-page-number.png?raw=true)
+
+
 ### Adding Current/Total Page Number in Footer or Header
 ```python
 from reportlab.platypus import SimpleDocTemplate
