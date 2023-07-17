@@ -12,7 +12,7 @@ pip install reportlab
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
+doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15, title="Example PDF")
 
 content = []
 
@@ -114,6 +114,25 @@ else:
 # Create an Image object with adjusted width and height
 image = Image(attachment_path, width=width, height=height)
 content.append(image)
+
+doc.build(content)
+```
+### Draw Line
+```python
+from reportlab.platypus import SimpleDocTemplate
+from reportlab.lib import colors
+from reportlab.graphics.shapes import Line
+
+doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
+
+content = []
+
+line = Table(
+     [[""]],
+     colWidths="100%",
+     style=[("LINEABOVE", (0, 0), (-1, -1), 1, colors.red)],
+)
+content.append(line)
 
 doc.build(content)
 ```
