@@ -189,6 +189,8 @@ content.append(line)
 
 doc.build(content)
 ```
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/line.png?raw=true)
+
 ### Draw a Dotted line
 ```python
 from reportlab.platypus import SimpleDocTemplate, Table
@@ -216,6 +218,7 @@ content.append(line)
 
 doc.build(content)
 ```
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/dotted-line.png?raw=true)
 
 ### Table
 ```python
