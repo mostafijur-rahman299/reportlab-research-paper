@@ -153,13 +153,14 @@ content.append(image)
 
 doc.build(content)
 ```
-![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/Screenshot%20from%202023-07-17%2013-55-31.png?raw=true)
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/ex-image-output.png?raw=true)
 
 ### Draw a Line
 ```python
-from reportlab.platypus import SimpleDocTemplate
+from reportlab.platypus import SimpleDocTemplate, Table
 from reportlab.lib import colors
-from reportlab.graphics.shapes import Line
+from reportlab.lib.pagesizes import A4
+
 
 doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
 
@@ -172,13 +173,28 @@ line = Table(
 )
 content.append(line)
 
+line = Table(
+     [[""]],
+     colWidths="50%",
+     style=[("LINEABOVE", (0, 0), (-1, -1), 1, colors.red)],
+)
+content.append(line)
+
+line = Table(
+     [[""]],
+     colWidths="80%",
+     style=[("LINEABOVE", (0, 0), (-1, -1), 1, colors.red)],
+)
+content.append(line)
+
 doc.build(content)
 ```
 ### Draw a Dotted line
 ```python
-from reportlab.platypus import SimpleDocTemplate
+from reportlab.platypus import SimpleDocTemplate, Table
 from reportlab.lib import colors
-from reportlab.graphics.shapes import Line
+from reportlab.lib.pagesizes import A4
+
 
 doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
 
@@ -187,7 +203,14 @@ content = []
 line = Table(
      [[""]],
      colWidths="100%",
-     style=[("LINEABOVE", (0, 0), (-1, -1), 1, colors.red)],
+     style=[("LINEABOVE", (0, 0), (-1, -1), 1, colors.red, 0.2, (0, 2, 1, 0))],
+)
+content.append(line)
+
+line = Table(
+     [[""]],
+     colWidths="50%",
+     style=[("LINEABOVE", (0, 0), (-1, -1), 1, colors.red, 0.2, (0, 2, 1, 0))],
 )
 content.append(line)
 
