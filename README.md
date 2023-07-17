@@ -153,6 +153,7 @@ content.append(image)
 
 doc.build(content)
 ```
+#### Output:
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/ex-image-output.png?raw=true)
 
 ### Draw a Line
@@ -192,6 +193,7 @@ content.append(line)
 
 doc.build(content)
 ```
+#### Output:
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/line.png?raw=true)
 
 ### Draw a Dotted line
@@ -295,7 +297,7 @@ content.append(table)
 
 doc.build(content)
 ```
-
+#### Output:
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/table-ex.png?raw=true)
 
 ### Adding Current Page Number in footer or header
@@ -324,6 +326,7 @@ def add_page_numbers(canvas, doc):
 
 doc.build(content, onFirstPage=add_page_numbers, onLaterPages=add_page_numbers)
 ```
+#### Output:
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/footer-page-number.png?raw=true)
 
 
@@ -388,7 +391,7 @@ doc.build(
   adjusted_caption='', xx_position=209, yy_position=627.5)
 )
 ```
-
+#### Output: 
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/footer-current-total-page-number.png?raw=true)
 
 ### Adding Same Header on each Page Of the PDF
@@ -507,4 +510,8 @@ doc.build(
   onLaterPages=partial(header)
 )
 ```
+#### Output:
 ![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/loop-header.png?raw=true)
+
+## Another More Examples
+
