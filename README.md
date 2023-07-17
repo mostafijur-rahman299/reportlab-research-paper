@@ -240,6 +240,9 @@ data = [
 table = Table(data)
 
 style = TableStyle([
+    
+    # (Style Name, (Start Row, Start Column), (End Row, End Column), Properties)
+    
     ('BACKGROUND', (0,0), (3,0), colors.green),
     ('TEXTCOLOR', (0,0), (3,0), colors.whitesmoke),
     
@@ -281,6 +284,9 @@ content.append(table)
 
 doc.build(content)
 ```
+
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/table-ex.png?raw=true)
+
 ### Adding Current Page Number in footer or header
 ```python
 from reportlab.platypus import SimpleDocTemplate
