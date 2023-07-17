@@ -96,8 +96,9 @@ para_image = Paragraph(f"<img src='images/phone-192.png' width='15' height='15' 
 content.append(para_image)
 
 doc.build(content)
-
 ```
+#### Output:
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/Screenshot%20from%202023-07-17%2013-55-31.png?raw=true)
 
 ### Image Tag
 ```python
