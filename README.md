@@ -9,70 +9,89 @@ pip install reportlab
 
 ### Paragraph Tag
 ```python
-from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
 
 doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15, title="Example PDF")
 
+styles = getSampleStyleSheet()
+
 content = []
 
-# Paragraph
+# Paragraph with Left Alignment
 para_style = ParagraphStyle(
             name='para',
-            parent=self.styles['Normal'], # Type of text has more parent like "title", "Heading5" etc..
-            fontSize=28,
+            parent=styles['Normal'], 
+            fontSize=20,
             textColor=colors.HexColor("#5e5b5b"),
-            alignment=1,  # It's vairation like 0,1 and 2. 0=Left, 1=Center, 2=Right
-            leftIndent=10,
-            rightIndent=15,
-            spaceAfter=10,
-            leading=10, # space between two line of text
+            alignment=0, # Align Left
         )
 
 paragraph = Paragraph("Hello World", para_style)
 content.append(paragraph)
 
+# Paragraph With Center Alignment
+para_style = ParagraphStyle(
+            name='para',
+            parent=styles['title'], 
+            fontSize=20,
+            textColor=colors.HexColor("#5e5b5b"),
+            alignment=1, # Align Center
+        )
+
+paragraph = Paragraph("Hello World", para_style)
+content.append(paragraph)
+
+# Paragraph With Right Alignment
+para_style = ParagraphStyle(
+            name='para',
+            parent=styles['Heading2'], 
+            fontSize=20,
+            textColor=colors.HexColor("#5e5b5b"),
+            alignment=2, # Align Center
+        )
+
+paragraph = Paragraph("Hello World", para_style)
+content.append(paragraph)
+
+# Paragraph With Right Alignment
+para_style = ParagraphStyle(
+            name='para',
+            parent=styles['Heading2'], 
+            fontSize=10,
+            textColor=colors.HexColor("#5e5b5b"),
+            alignment=0, # Align Center
+            leading=8, # spacing between lines
+            leftIndent=30,
+            rightIndent=30,
+            spaceAfter=10,
+        )
+
+paragraph = Paragraph("In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used", para_style)
+content.append(paragraph)
+
+
 # Underline text
-underline_text = Paragraph(f'<u>Hey Therer, </u>')
+para_style = ParagraphStyle(
+            name='para',
+            parent=styles['Heading2'], 
+            fontSize=20,
+            textColor=colors.HexColor("#5e5b5b"),
+            alignment=0, # Align Center
+        )
+underline_text = Paragraph(f'<u>Hey There</u>', para_style)
 content.append(underline_text)
 
+content.append(Spacer(1, 20)) # Give some space
+
 # Images Inside Paragraph tag
-para_image = Paragraph(f"<img src='phone-192.png' width='15' height='15' /> +8894847497  <img src='whatsapp-192.png' width='15' height='15' />  +19373973  <img src='email-50.png' width='15' height='15' />example@gmail.com")
+para_image = Paragraph(f"<img src='images/phone-192.png' width='15' height='15' /> +8894847497  <img src='images/whatsapp-192.png' width='15' height='15' />  +19373973  <img src='images/email-50.png' width='15' height='15' />example@gmail.com")
 content.append(para_image)
 
 doc.build(content)
-```
-For more on paragraph checkout [docs](https://docs.reportlab.com/reportlab/userguide/ch6_paragraphs)
 
-### Adding Custom Fonts
-```python
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-
-doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
-
-# Download your desired font and replace font_path1 and font_path2 variable with your actual downloaded paths
-font_path1 = 'static/fonts/microsoft-yahei/msyhbd.ttc'
-font_path2 = 'static/fonts/microsoft-yahei/chinese.msyh.ttf'
-
-pdfmetrics.registerFont(TTFont('MSYTC-Bold', font_path1))
-pdfmetrics.registerFont(TTFont('MSYTC-Regular', font_path2))
-
-content = []
-
-# Paragraph
-para_style = ParagraphStyle(
-            name='para',
-            parent=self.styles['Normal']
-            fontSize=28,
-            fontName='MSYTC-Regular',
-        )
-paragraph = Paragraph("Hello World", para_style)
-content.append(paragraph)
-
-doc.build(content)
 ```
 
 ### Image Tag
@@ -293,4 +312,138 @@ class NumberedPage(canvas.Canvas):
         self.setFillColor(colors.black)
         self.drawRightString(self.x_position, self.y_position, self._adjusted_caption + "%d/%d" % (self._pageNumber, page_count))
   
+```
+
+### Adding Same Header on each Page Of the PDF
+```python
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, Spacer, Paragraph, TableStyle, Image, KeepTogether
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from django.conf import settings
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from utils.helper_functions import is_image_readable
+from reportlab.graphics.shapes import Drawing, Line
+from functools import partial
+from reportlab.lib.units import *
+from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
+
+doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
+
+content = []
+
+paragraph = Paragraph("Same header or footer on each page")
+content.append(paragraph)
+
+def top_header(shop_name, primary_color, reg_number, address1="", address2="", phone_number="", whatsapp_number="", email=""):
+        
+        header_template = []
+        styles = getSampleStyleSheet()
+        
+        header_style = ParagraphStyle(
+            name='Header',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.black,
+            fontName='MSYTC-Bold',
+            leading=8,
+            
+        )
+
+        subheader_style = ParagraphStyle(
+            name='Subheader',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=primary_color,
+            fontName='MSYTC-Regular',
+            leading=6,
+        )
+        
+        custom_style = ParagraphStyle(
+            name='CustomStyle',
+            fontSize=8,
+            fontName='MSYTC-Regular',
+            textColor=primary_color,
+        )
+        
+        header = [
+                Paragraph(shop_name, header_style),
+                Spacer(1, 5),
+                Paragraph(f"Reg.No: ({reg_number})", subheader_style),
+                Spacer(1, 6),
+                Paragraph(address1, subheader_style),
+                Spacer(1, 6),
+                Paragraph(address2, subheader_style),
+                Spacer(1, 6),
+                Paragraph(
+                    f"<img src='static/images/icons/phone.png' width='8' height='8' /> {phone_number}  <img src='static/images/icons/whatsapp.png' width='8' height='8' />  {whatsapp_number}  <img src='static/images/icons/gmail.png' width='8' height='8' /> {email}", custom_style
+                )
+            ]
+
+        data = [[header]]
+        table = Table(data, colWidths=[135, None])
+
+        # Set table styles
+        table.setStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, 0), colors.white),
+                ("TEXTCOLOR", (0, 0), (0, 0), colors.black),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("LEFTPADDING", (0, 0), (-1, -1), 1.2*inch),
+            ]
+        )
+
+        header_text = [
+            [table],
+        ]
+
+        header_table = Table(header_text)
+
+        center_table = Table([[header_table]], style=[('ALIGN', (0, 0), (-1, -1), 'CENTER')])
+        header_template.append(center_table)
+        return header_template   
+        
+
+def shop_header(canvas, doc):
+        
+        # Save the state of our canvas so we can draw on it
+        canvas.saveState()
+        
+        top_header = top_header("AK Group & Industries", "", colors.red, "89484904849JH9479", "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678", "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678", "+9849484049", "+049484943", "example@gmail.com")
+        
+        for tph in top_header:
+            w, h = tph.wrap(doc.width, doc.topMargin)
+            tph.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h + 25)
+        
+        def draw_line(margin, width="", color=colors.black):
+            # Calculate the margin bottom for the header
+            margin_bottom = doc.topMargin - h + margin
+            
+            width = doc.width
+            if width:
+                width = width
+            
+            # Create a drawing and add a line at the bottom of the header
+            drawing = Drawing(width, 0.1)
+            line = Line(0, 0, width, 0)
+            line.strokeColor = color
+            line.strokeWidth = 0.1
+            drawing.add(line)
+            
+            # Draw the line at the bottom of the header
+            drawing.drawOn(canvas, doc.leftMargin, margin_bottom)
+            
+        draw_line(margin=660)
+
+doc.build(
+  content,
+  onFirstPage=partial(header),
+  onLaterPages=partial(header)
+)
 ```
