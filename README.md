@@ -329,24 +329,14 @@ doc.build(content, onFirstPage=add_page_numbers, onLaterPages=add_page_numbers)
 
 ### Adding Current/Total Page Number in Footer or Header
 ```python
-from reportlab.platypus import SimpleDocTemplate
+from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from functools import partial
+from reportlab.lib.units import inch
+from reportlab.lib.units import mm
 
-doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
-
-content = []
-
-paragraph = Paragraph("Page Number In Footer")
-content.append(paragraph)
-
-doc.build(
-  content,
-  canvasmaker=partial(NumberedPage, adjusted_height=-21, adjusted_width=-78, 
-  adjusted_caption='', xx_position=209, yy_position=627.5)
-)
 
 class NumberedPage(canvas.Canvas):
     _adjusted_height = 0
@@ -381,32 +371,46 @@ class NumberedPage(canvas.Canvas):
         # Change the position of this to wherever you want the page number to be
         self.setFillColor(colors.black)
         self.drawRightString(self.x_position, self.y_position, self._adjusted_caption + "%d/%d" % (self._pageNumber, page_count))
-  
-```
-
-### Adding Same Header on each Page Of the PDF
-```python
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, Spacer, Paragraph, TableStyle, Image, KeepTogether
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-from django.conf import settings
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from utils.helper_functions import is_image_readable
-from reportlab.graphics.shapes import Drawing, Line
-from functools import partial
-from reportlab.lib.units import *
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
-
+        
+        
 doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
 
 content = []
 
-paragraph = Paragraph("Same header or footer on each page")
+paragraph = Paragraph(" ")
 content.append(paragraph)
+content.append(PageBreak())
+content.append(PageBreak())
+
+doc.build(
+  content,
+  canvasmaker=partial(NumberedPage, adjusted_height=-21, adjusted_width=-78, 
+  adjusted_caption='', xx_position=209, yy_position=627.5)
+)
+```
+
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/footer-current-total-page-number.png?raw=true)
+
+### Adding Same Header on each Page Of the PDF
+
+```python
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, Spacer, Paragraph, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.graphics.shapes import Drawing, Line
+from functools import partial
+from reportlab.lib.units import *
+doc = SimpleDocTemplate("example.pdf", pagesize=A4, topMargin=0.5, leftMargin=15, rightMargin=15)
+
+content = []
+
+paragraph = Paragraph(" ")
+content.append(paragraph)
+
+content.append(PageBreak())
+content.append(PageBreak())
 
 def top_header(shop_name, primary_color, reg_number, address1="", address2="", phone_number="", whatsapp_number="", email=""):
         
@@ -418,7 +422,6 @@ def top_header(shop_name, primary_color, reg_number, address1="", address2="", p
             parent=styles['Normal'],
             fontSize=9,
             textColor=colors.black,
-            fontName='MSYTC-Bold',
             leading=8,
             
         )
@@ -428,15 +431,7 @@ def top_header(shop_name, primary_color, reg_number, address1="", address2="", p
             parent=styles['Normal'],
             fontSize=8,
             textColor=primary_color,
-            fontName='MSYTC-Regular',
             leading=6,
-        )
-        
-        custom_style = ParagraphStyle(
-            name='CustomStyle',
-            fontSize=8,
-            fontName='MSYTC-Regular',
-            textColor=primary_color,
         )
         
         header = [
@@ -447,14 +442,10 @@ def top_header(shop_name, primary_color, reg_number, address1="", address2="", p
                 Paragraph(address1, subheader_style),
                 Spacer(1, 6),
                 Paragraph(address2, subheader_style),
-                Spacer(1, 6),
-                Paragraph(
-                    f"<img src='static/images/icons/phone.png' width='8' height='8' /> {phone_number}  <img src='static/images/icons/whatsapp.png' width='8' height='8' />  {whatsapp_number}  <img src='static/images/icons/gmail.png' width='8' height='8' /> {email}", custom_style
-                )
             ]
 
         data = [[header]]
-        table = Table(data, colWidths=[135, None])
+        table = Table(data, colWidths=[535])
 
         # Set table styles
         table.setStyle(
@@ -480,36 +471,35 @@ def top_header(shop_name, primary_color, reg_number, address1="", address2="", p
         return header_template   
         
 
-def shop_header(canvas, doc):
+def header(canvas, doc):
+    # Save the state of our canvas so we can draw on it
+    canvas.saveState()
+    
+    _header = top_header("AK Group & Industries", colors.red, "89484904849JH9479", "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678", "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678", "+9849484049", "+049484943", "example@gmail.com")
+    
+    for tph in _header:
+        w, h = tph.wrap(doc.width, doc.topMargin)
+        tph.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h + 25)
+    
+    def draw_line(margin, width="", color=colors.black):
+        # Calculate the margin bottom for the header
+        margin_bottom = doc.topMargin - h + margin
         
-        # Save the state of our canvas so we can draw on it
-        canvas.saveState()
+        width = doc.width
+        if width:
+            width = width
         
-        top_header = top_header("AK Group & Industries", "", colors.red, "89484904849JH9479", "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678", "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678", "+9849484049", "+049484943", "example@gmail.com")
+        # Create a drawing and add a line at the bottom of the header
+        drawing = Drawing(width, 0.1)
+        line = Line(0, 0, width, 0)
+        line.strokeColor = color
+        line.strokeWidth = 0.1
+        drawing.add(line)
         
-        for tph in top_header:
-            w, h = tph.wrap(doc.width, doc.topMargin)
-            tph.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h + 25)
+        # Draw the line at the bottom of the header
+        drawing.drawOn(canvas, doc.leftMargin, margin_bottom)
         
-        def draw_line(margin, width="", color=colors.black):
-            # Calculate the margin bottom for the header
-            margin_bottom = doc.topMargin - h + margin
-            
-            width = doc.width
-            if width:
-                width = width
-            
-            # Create a drawing and add a line at the bottom of the header
-            drawing = Drawing(width, 0.1)
-            line = Line(0, 0, width, 0)
-            line.strokeColor = color
-            line.strokeWidth = 0.1
-            drawing.add(line)
-            
-            # Draw the line at the bottom of the header
-            drawing.drawOn(canvas, doc.leftMargin, margin_bottom)
-            
-        draw_line(margin=660)
+    draw_line(margin=790)
 
 doc.build(
   content,
@@ -517,3 +507,4 @@ doc.build(
   onLaterPages=partial(header)
 )
 ```
+![Paragraph Example](https://github.com/mostafijur-rahman299/reportlab-research-paper/blob/master/images/loop-header.png?raw=true)
